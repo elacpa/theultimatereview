@@ -1,1 +1,1281 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREAK OUT OF ORDINARY 💥 — Outliers Escape Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --y:#FFD600;--r:#E63946;--n:#1A2744;--w:#FEFCE8;--k:#111;
+  --g:#2DC653;--o:#FF6B35;--p:#9B5DE5;--lgray:#f0f0e8;
+}
+body{
+  background-color:var(--w);
+  background-image:radial-gradient(circle,#bbb 1px,transparent 1px);
+  background-size:20px 20px;
+  font-family:'Comic Neue',cursive;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+#app{max-width:820px;margin:0 auto;padding:16px 16px 40px}
+
+/* HUD */
+#hud{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 18px;background:var(--n);
+  border:4px solid var(--k);border-radius:10px;
+  box-shadow:5px 5px 0 var(--k);margin-bottom:18px;
+  color:white;gap:8px;
+}
+.hud-hearts{font-size:1.5rem;letter-spacing:2px;min-width:100px}
+.hud-center{
+  font-family:'Bangers',cursive;font-size:1.1rem;letter-spacing:2px;
+  color:var(--y);text-align:center;flex:1;
+}
+.hud-right{
+  font-family:'Bangers',cursive;font-size:1.2rem;
+  color:var(--y);letter-spacing:2px;min-width:100px;text-align:right;
+}
+
+/* PANELS */
+.panel{
+  background:var(--w);border:4px solid var(--k);border-radius:10px;
+  box-shadow:6px 6px 0 var(--k);padding:24px;margin-bottom:18px;position:relative;
+}
+.panel-yellow{background:var(--y)}
+.panel-navy{background:var(--n);color:white}
+.panel-red{background:var(--r);color:white}
+.panel-green{background:var(--g)}
+
+/* CHAPTER HEADER */
+.chapter-header{
+  background:var(--n);color:var(--y);
+  padding:14px 18px;border:4px solid var(--k);
+  border-radius:8px 8px 0 0;margin:-24px -24px 18px -24px;
+  display:flex;align-items:center;gap:12px;
+}
+.ch-emoji{font-size:2rem}
+.ch-num{font-family:'Bangers',cursive;font-size:0.9rem;letter-spacing:2px;opacity:0.8}
+.ch-title{font-family:'Bangers',cursive;font-size:1.5rem;letter-spacing:2px}
+.ch-steps{
+  margin-left:auto;font-family:'Bangers',cursive;font-size:1rem;
+  background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:20px;
+}
+
+/* FLAVOR */
+.flavor-text{
+  font-style:italic;font-size:0.95rem;color:#555;
+  border-left:5px solid var(--y);padding:8px 12px;
+  background:rgba(255,214,0,0.1);border-radius:0 6px 6px 0;margin-bottom:18px;
+}
+
+/* SPEECH BUBBLE */
+.speech-bubble{
+  background:var(--y);border:3px solid var(--k);border-radius:12px;
+  padding:14px 18px;margin-bottom:18px;font-weight:700;font-size:1rem;
+  position:relative;
+}
+.speech-bubble::after{
+  content:'';position:absolute;bottom:-14px;left:28px;
+  border:7px solid transparent;border-top-color:var(--k);
+}
+.speech-bubble::before{
+  content:'';position:absolute;bottom:-9px;left:29px;
+  border:6px solid transparent;border-top-color:var(--y);z-index:1;
+}
+
+/* BUTTONS */
+.btn{
+  display:inline-block;padding:11px 26px;
+  font-family:'Bangers',cursive;font-size:1.2rem;letter-spacing:2px;
+  border:3px solid var(--k);border-radius:7px;
+  box-shadow:4px 4px 0 var(--k);cursor:pointer;
+  transition:transform .1s,box-shadow .1s;
+  background:var(--y);color:var(--k);text-decoration:none;
+}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--k)}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--k)}
+.btn-red{background:var(--r);color:white}
+.btn-navy{background:var(--n);color:white}
+.btn-green{background:var(--g);color:var(--k)}
+.btn-big{font-size:1.5rem;padding:16px 36px}
+
+/* QUESTIONS */
+.question{
+  font-size:1.1rem;font-weight:700;line-height:1.5;
+  margin-bottom:16px;color:var(--n);
+}
+.mc-options{display:flex;flex-direction:column;gap:10px}
+.mc-option{
+  padding:12px 16px;border:3px solid var(--k);border-radius:7px;
+  background:var(--w);cursor:pointer;font-size:0.95rem;font-weight:700;
+  box-shadow:3px 3px 0 var(--k);transition:all .1s;text-align:left;
+  display:flex;align-items:center;gap:10px;
+}
+.mc-option:hover{background:var(--y);transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--k)}
+.mc-option.correct{background:var(--g)!important}
+.mc-option.wrong{background:var(--r)!important;color:white}
+.opt-letter{
+  font-family:'Bangers',cursive;font-size:1.2rem;letter-spacing:1px;
+  min-width:26px;text-align:center;color:var(--n);
+}
+.mc-option.correct .opt-letter,.mc-option.wrong .opt-letter{color:inherit}
+
+/* FILL-IN */
+.fillin-wrap .question{margin-bottom:14px}
+.fillin-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.fill-input{
+  padding:11px 14px;font-size:1.1rem;font-family:'Bangers',cursive;letter-spacing:2px;
+  border:3px solid var(--k);border-radius:7px;box-shadow:3px 3px 0 var(--k);
+  width:200px;background:var(--w);
+}
+.fill-input:focus{outline:none;border-color:var(--n)}
+
+/* GATE */
+.gate-panel{
+  background:var(--n);border:6px solid var(--y);border-radius:14px;
+  box-shadow:10px 10px 0 var(--k);padding:40px 32px;text-align:center;color:white;
+}
+.gate-icon{font-size:4rem;margin-bottom:12px}
+.gate-title{font-family:'Bangers',cursive;font-size:2.5rem;letter-spacing:3px;color:var(--y);margin-bottom:8px}
+.gate-num{font-size:0.85rem;letter-spacing:3px;opacity:0.6;margin-bottom:16px;text-transform:uppercase}
+.gate-msg{font-size:1rem;line-height:1.6;margin-bottom:24px;max-width:500px;margin-left:auto;margin-right:auto}
+.code-input{
+  padding:14px 20px;font-size:1.8rem;font-family:'Bangers',cursive;
+  letter-spacing:6px;border:4px solid var(--y);border-radius:8px;
+  background:rgba(0,0,0,0.5);color:var(--y);text-align:center;
+  width:280px;margin:0 auto 20px;display:block;text-transform:uppercase;
+}
+.code-input:focus{outline:none;background:rgba(0,0,0,0.7)}
+.gate-hint{font-size:0.85rem;opacity:0.6;margin-top:14px;font-style:italic}
+
+/* INTRO */
+.intro-title{
+  font-family:'Bangers',cursive;font-size:clamp(2rem,8vw,3.5rem);
+  letter-spacing:4px;color:var(--k);line-height:1;margin:8px 0 4px;
+}
+.intro-sub{font-family:'Bangers',cursive;font-size:1.2rem;letter-spacing:4px;color:var(--n);margin-bottom:6px}
+.intro-class{font-family:'Bangers',cursive;font-size:0.9rem;letter-spacing:3px;color:#666;margin-bottom:20px}
+.intro-top{text-align:center;margin-bottom:20px}
+.zap{font-family:'Bangers',cursive;font-size:1.5rem;letter-spacing:3px;color:var(--r)}
+.rules-panel{
+  background:var(--n);color:white;border:3px solid var(--k);
+  border-radius:8px;padding:18px 20px;margin-bottom:20px;
+}
+.rules-panel h3{font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:2px;margin-bottom:12px;color:var(--y)}
+.rules-panel ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rules-panel li{font-size:0.95rem;line-height:1.4}
+.start-btn{display:block;width:100%;font-size:1.6rem;padding:16px}
+
+/* MINIGAME SHARED */
+.minigame-header{margin-bottom:16px}
+.minigame-header h3{
+  font-family:'Bangers',cursive;font-size:1.6rem;letter-spacing:2px;
+  color:var(--n);margin-bottom:8px;
+}
+.mg-instructions{
+  font-size:0.9rem;color:#555;line-height:1.5;
+  background:rgba(255,214,0,0.2);border-left:4px solid var(--y);
+  padding:8px 12px;border-radius:0 6px 6px 0;
+}
+.mg-check-row{text-align:center;margin-top:16px}
+.drag-card{
+  padding:10px 14px;background:var(--y);border:3px solid var(--k);
+  border-radius:7px;box-shadow:3px 3px 0 var(--k);cursor:pointer;
+  font-weight:700;font-size:0.88rem;line-height:1.3;
+  transition:all .15s;user-select:none;
+}
+.drag-card:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--k)}
+.drag-card.selected{background:var(--o);transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--k)}
+.drag-card.placed{background:var(--g);cursor:default;opacity:0.85}
+.drag-card.placed:hover{transform:none;box-shadow:3px 3px 0 var(--k)}
+.slot-empty{font-style:italic;color:#aaa;font-weight:400;font-size:0.85rem}
+.all-placed{font-style:italic;color:#888;font-size:0.9rem;text-align:center;padding:10px}
+
+/* SORT BIRTHDAYS */
+.sb-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+.sb-players h4,.sb-zones h4,.zone-zone h4{
+  font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;margin-bottom:10px;color:var(--n);
+}
+.sb-players{display:flex;flex-direction:column;gap:8px}
+.sb-zones{display:flex;flex-direction:column;gap:12px}
+.sb-zone{
+  border:3px dashed #999;border-radius:8px;padding:12px;
+  min-height:110px;cursor:pointer;transition:all .15s;
+  display:flex;flex-direction:column;gap:6px;
+}
+.sb-zone:hover,.sb-zone.zone-hl{border-color:var(--n);background:rgba(26,39,68,0.05)}
+.zone-drafted{border-color:#2DC653;background:rgba(45,198,83,0.05)}
+.zone-passed{border-color:var(--r);background:rgba(230,57,70,0.05)}
+.zone-hint{font-size:0.78rem;font-style:italic;color:#888;margin-bottom:4px}
+
+/* RICE PADDY */
+.rp-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+.rp-cards h4,.rp-slots h4{
+  font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;margin-bottom:10px;color:var(--n);
+}
+.rp-cards{display:flex;flex-direction:column;gap:8px}
+.rp-slots{display:flex;flex-direction:column;gap:8px}
+.rp-slot{
+  padding:10px 12px;background:#eee;border:3px dashed #999;border-radius:7px;
+  min-height:48px;cursor:pointer;font-size:0.85rem;font-weight:700;
+  display:flex;align-items:center;gap:10px;transition:all .15s;
+}
+.rp-slot:hover{border-color:var(--n);background:#e0e0d8}
+.rp-slot.filled{border-style:solid;border-color:var(--k);background:var(--g)}
+.slot-num{
+  font-family:'Bangers',cursive;font-size:1.1rem;color:var(--n);
+  min-width:22px;text-align:center;
+}
+.rp-slot.filled .slot-num{color:var(--k)}
+
+/* MEMORY MATCH */
+.card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.memory-card{
+  aspect-ratio:3/4;background:var(--n);border:3px solid var(--k);border-radius:8px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-family:'Bangers',cursive;font-size:1.6rem;color:var(--y);
+  box-shadow:3px 3px 0 var(--k);transition:transform .2s;
+  user-select:none;text-align:center;padding:6px;
+}
+.memory-card:hover:not(.matched){transform:translate(-2px,-2px)}
+.memory-card.flipped{
+  background:var(--y);color:var(--k);font-family:'Comic Neue',cursive;
+  font-size:0.72rem;font-weight:700;
+}
+.memory-card.matched{background:var(--g);cursor:default;border-color:var(--k)}
+.mm-progress{
+  font-family:'Bangers',cursive;letter-spacing:2px;font-size:1rem;
+  color:var(--n);margin-top:8px;
+}
+.mm-success{
+  text-align:center;padding:30px 20px;
+}
+.mm-success-icon{font-size:4rem;margin-bottom:12px}
+.mm-success h3{font-family:'Bangers',cursive;font-size:2rem;letter-spacing:2px;margin-bottom:10px;color:var(--n)}
+.mm-success p{font-size:1rem;color:#555;margin-bottom:20px}
+
+/* COCKPIT TRANSLATOR */
+.ct-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+.ct-quotes h4,.ct-slots h4{
+  font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;margin-bottom:10px;color:var(--n);
+}
+.ct-quotes{display:flex;flex-direction:column;gap:10px}
+.ct-quote{
+  padding:12px 14px;background:var(--n);color:white;border:3px solid var(--k);
+  border-radius:8px;box-shadow:3px 3px 0 var(--k);cursor:pointer;font-size:0.9rem;
+  font-style:italic;line-height:1.4;transition:all .15s;user-select:none;
+}
+.ct-quote:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--k)}
+.ct-quote.selected{background:var(--o);border-color:var(--k)}
+.ct-quote.placed{opacity:0.4;cursor:default}
+.ct-quote.placed:hover{transform:none;box-shadow:3px 3px 0 var(--k)}
+.ct-slots{display:flex;flex-direction:column;gap:10px}
+.ct-slot{
+  padding:12px 14px;background:#eee;border:3px dashed #999;border-radius:8px;
+  cursor:pointer;min-height:70px;transition:all .15s;display:flex;
+  flex-direction:column;gap:4px;
+}
+.ct-slot:hover{border-color:var(--n);background:#e0e0d8}
+.ct-slot.filled{border-style:solid;border-color:var(--k);background:var(--y)}
+.ct-slot-label{font-size:0.78rem;color:#888;font-style:italic}
+.ct-slot.filled .ct-slot-label{color:#666}
+.ct-placed-quote{font-size:0.82rem;font-style:italic;font-weight:700;line-height:1.3}
+
+/* MARITA'S DAY */
+.md-layout{display:grid;grid-template-columns:1fr 1.5fr;gap:16px;margin-top:12px}
+.md-blocks h4,.md-timeline h4{
+  font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;margin-bottom:10px;color:var(--n);
+}
+.md-blocks{display:flex;flex-direction:column;gap:8px}
+.md-block{
+  padding:12px 14px;border:3px solid var(--k);border-radius:8px;
+  box-shadow:3px 3px 0 var(--k);cursor:pointer;line-height:1.3;
+  font-size:0.88rem;transition:all .15s;user-select:none;
+}
+.md-block:hover:not(.placed){transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--k)}
+.md-block.placed{cursor:default;box-shadow:2px 2px 0 var(--k)}
+.md-timeline{}
+.md-bar{
+  display:flex;flex-direction:column;gap:0;
+  border:3px solid var(--k);border-radius:8px;overflow:hidden;height:360px;
+}
+.md-slot{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  font-size:0.7rem;font-weight:700;border-bottom:1px solid rgba(0,0,0,0.1);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;
+}
+.md-slot.empty{background:#ddd;color:#bbb}
+.md-bar-labels{
+  display:flex;justify-content:space-between;
+  font-size:0.72rem;color:#888;margin-top:4px;padding:0 4px;
+}
+.md-gutpunch{
+  margin-top:20px;padding:20px;background:var(--n);color:white;
+  border:4px solid var(--k);border-radius:10px;box-shadow:5px 5px 0 var(--k);
+}
+.md-gutpunch h3{font-family:'Bangers',cursive;font-size:1.5rem;letter-spacing:2px;color:var(--y);margin-bottom:10px}
+.md-gutpunch p{font-size:0.95rem;line-height:1.6;margin-bottom:16px}
+
+/* ESCAPE */
+.escape-wrap{text-align:center}
+.escape-title{
+  font-family:'Bangers',cursive;font-size:clamp(2rem,8vw,3.5rem);
+  letter-spacing:4px;color:var(--k);margin-bottom:4px;
+}
+.escape-sub{font-family:'Bangers',cursive;font-size:1rem;letter-spacing:3px;color:var(--n);margin-bottom:20px}
+.escape-stats{display:flex;gap:16px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.stat-box{
+  background:var(--n);color:white;border:4px solid var(--k);border-radius:10px;
+  box-shadow:5px 5px 0 var(--k);padding:16px 28px;text-align:center;
+}
+.stat-label{font-size:0.8rem;letter-spacing:2px;opacity:0.7;margin-bottom:4px}
+.stat-val{font-family:'Bangers',cursive;font-size:2rem;letter-spacing:2px;color:var(--y)}
+.rank-badge{
+  background:var(--y);border:5px solid var(--k);border-radius:14px;
+  box-shadow:8px 8px 0 var(--k);padding:24px 28px;margin:0 auto 24px;
+  max-width:520px;
+}
+.rank-emoji{font-size:3rem;margin-bottom:8px}
+.rank-title{font-family:'Bangers',cursive;font-size:1.6rem;letter-spacing:2px;color:var(--k);margin-bottom:10px;line-height:1.2}
+.rank-desc{font-size:0.95rem;color:#333;line-height:1.5}
+.escape-footer{font-size:0.85rem;color:#666;font-style:italic;line-height:1.8}
+
+/* GAME OVER */
+.gameover-wrap{text-align:center}
+.gameover-panel{
+  background:var(--r);border:6px solid var(--k);border-radius:14px;
+  color:white;box-shadow:10px 10px 0 var(--k);text-align:center;padding:40px 32px;
+}
+.go-icon{font-size:5rem;margin-bottom:16px}
+.go-title{font-family:'Bangers',cursive;font-size:3rem;letter-spacing:4px;margin-bottom:8px}
+.go-sub{font-size:1.1rem;margin-bottom:20px;opacity:0.85}
+.go-quote{
+  background:rgba(0,0,0,0.2);border-radius:8px;padding:14px 18px;
+  font-style:italic;font-size:0.95rem;line-height:1.5;margin-bottom:20px;
+}
+.go-restart-msg{font-size:0.95rem;line-height:1.6;margin-bottom:24px;opacity:0.9}
+.go-restart-msg small{opacity:0.75;font-size:0.85rem}
+
+/* NOTIFICATIONS */
+.notif{
+  position:fixed;top:-80px;left:50%;transform:translateX(-50%);
+  padding:14px 28px;font-family:'Bangers',cursive;font-size:1.4rem;
+  letter-spacing:2px;border:4px solid var(--k);border-radius:10px;
+  box-shadow:6px 6px 0 var(--k);z-index:9999;white-space:nowrap;
+  animation:notifSlide 2.5s ease forwards;pointer-events:none;
+}
+.notif-wrong{background:var(--r);color:white}
+.notif-correct{background:var(--g);color:var(--k)}
+
+/* CONFETTI */
+.confetti-piece{
+  position:fixed;width:10px;height:10px;top:-10px;
+  animation:confettiFall linear forwards;z-index:9998;pointer-events:none;
+}
+
+/* ANIMATIONS */
+@keyframes notifSlide{
+  0%{top:-80px;opacity:0}
+  15%{top:20px;opacity:1}
+  75%{top:20px;opacity:1}
+  100%{top:-80px;opacity:0}
+}
+@keyframes confettiFall{
+  to{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-6px)}
+  80%{transform:translateX(6px)}
+}
+@keyframes popIn{
+  0%{transform:scale(0.8);opacity:0}
+  100%{transform:scale(1);opacity:1}
+}
+.panel{animation:popIn .25s ease}
+.shake{animation:shake 0.45s ease}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .sb-layout,.rp-layout,.ct-layout,.md-layout{grid-template-columns:1fr}
+  .card-grid{grid-template-columns:repeat(3,1fr)}
+  .escape-stats{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ===================== GAME DATA =====================
+
+const PLAYERS = [
+  {id:0, name:'Jake "The Cannon" Kowalski', bday:'March 8',   month:3},
+  {id:1, name:'Tyler "Flash" Morrison',     bday:'November 14', month:11},
+  {id:2, name:'Connor "Ice" MacDonald',     bday:'January 22', month:1},
+  {id:3, name:'Dylan "Sniper" Peters',      bday:'September 3', month:9},
+  {id:4, name:'Ryan "Rocket" Schultz',      bday:'February 11', month:2},
+  {id:5, name:'Liam "The Wall" Henderson',  bday:'July 29',    month:7},
+];
+
+const RICE_STEPS = [
+  'Flood and prepare the paddy field',
+  'Plant seedlings by hand, row by row',
+  'Manage water levels every single day',
+  'Weed, fertilize, and monitor crop growth',
+  'Drain the field in preparation for harvest',
+  'Harvest by hand & prep soil for next season',
+];
+
+const MEMORY_CARDS_BASE = [
+  {pair:'A', label:'🎸 The Beatles'},
+  {pair:'A', label:'🎵 8-Hour Hamburg Club Sets'},
+  {pair:'B', label:'💻 Bill Gates'},
+  {pair:'B', label:'🖥️ Rare Computer Access at Age 13'},
+  {pair:'C', label:'🧠 Christopher Langan'},
+  {pair:'C', label:'📊 IQ of 195'},
+  {pair:'D', label:'⚖️ Joe Flom'},
+  {pair:'D', label:'🚫 Rejected by Elite Law Firms'},
+  {pair:'E', label:'✈️ Korean Air'},
+  {pair:'E', label:'📏 High Power Distance Culture'},
+  {pair:'F', label:'📚 Marita'},
+  {pair:'F', label:'🏫 KIPP Academy, South Bronx'},
+];
+
+const COCKPIT_QUOTES = [
+  {id:0, text:'"Captain… it\'s a little cloudy today, don\'t you think?"', correctSlot:0},
+  {id:1, text:'"Sir, I\'m somewhat concerned about the weather conditions ahead."', correctSlot:1},
+  {id:2, text:'"Captain! We NEED to change course NOW — this storm will bring us down!"', correctSlot:2},
+];
+
+const MARITA_BLOCKS = [
+  {id:'school',   label:'KIPP School Day',   hours:'9.5 hrs', slots:10, color:'#1A2744', textColor:'#FFD600'},
+  {id:'homework', label:'Homework',          hours:'3 hrs',   slots:3,  color:'#E63946', textColor:'white'},
+  {id:'sleep',    label:'Sleep',             hours:'8 hrs',   slots:8,  color:'#2DC653', textColor:'#111'},
+  {id:'meals',    label:'Meals & Hygiene',   hours:'1.5 hrs', slots:1,  color:'#FF6B35', textColor:'white'},
+  {id:'free',     label:'Free Time',         hours:'2 hrs',   slots:2,  color:'#9B5DE5', textColor:'white'},
+];
+
+const CHAPTERS = [
+  {
+    num:1, title:'The Matthew Effect', emoji:'🏒',
+    flavor:"Your adventure begins. Don't embarrass yourself on the first question.",
+    steps:[
+      {type:'mc',
+       q:'Why do so many elite Canadian hockey players share birthdays in January, February, and March?',
+       opts:[
+         'Winter babies are naturally stronger athletes',
+         'The January 1st eligibility cutoff makes older kids seem more talented to coaches',
+         'Hockey scouts secretly prefer winter birthdays',
+         'Pure coincidence — Gladwell just got lucky with his data',
+       ], correct:1},
+      {type:'minigame', game:'sort-birthdays', title:'DRAFT DAY! 🏒',
+       instructions:'A scout is picking players. Click a player card to select it (it turns orange), then click a zone to sort them. Players born Jan–Mar → DRAFTED. Everyone else → PASSED OVER.'},
+    ]
+  },
+  {
+    num:2, title:'The 10,000-Hour Rule', emoji:'⏱️',
+    flavor:"You cracked Ch. 1. Beginner's luck... or is it something more? 🤔",
+    steps:[
+      {type:'fillin',
+       q:"According to Gladwell, how many hours of practice does mastery require? (Type just the number, no commas)",
+       correct:['10000']},
+      {type:'mc',
+       q:'Where did The Beatles rack up the thousands of hours that made them legends?',
+       opts:[
+         'Liverpool pubs on weekends',
+         'Hamburg, Germany — playing 8-hour club sets night after night',
+         "London's West End theater scene",
+         'New York jazz clubs during their first US tour',
+       ], correct:1},
+    ]
+  },
+  {
+    num:3, title:'The Trouble with Geniuses, Pt. 1', emoji:'🧠',
+    flavor:'Getting spicy. Your brain is either your best friend or your worst enemy right now.',
+    steps:[
+      {type:'mc',
+       q:'At what IQ level does Gladwell say extra intelligence stops meaningfully boosting real-world success?',
+       opts:['100','120','150','195 — the higher the better, obviously'], correct:1},
+      {type:'mc',
+       q:"What did researcher Lewis Terman's decades-long study of gifted children ultimately prove?",
+       opts:[
+         'High IQ guarantees world-class achievement',
+         'Gifted children always out-earn their peers',
+         'High IQ alone does NOT guarantee becoming an outlier',
+         'Intelligence peaks at age 12 and declines after',
+       ], correct:2},
+    ]
+  },
+  {
+    num:4, title:'The Trouble with Geniuses, Pt. 2', emoji:'🤝',
+    flavor:"Being smart isn't enough. Sorry, nerds.",
+    steps:[
+      {type:'mc',
+       q:"What type of intelligence does Gladwell argue is just as critical as IQ — knowing what to say, to whom, and when?",
+       opts:[
+         'Emotional intelligence',
+         'Practical intelligence',
+         'Creative intelligence',
+         "Spiritual intelligence (yes, that's a real thing — no, it's not the answer)",
+       ], correct:1},
+      {type:'mc',
+       q:'Why did Robert Oppenheimer succeed where the equally brilliant Christopher Langan did not?',
+       opts:[
+         'Oppenheimer had a higher IQ',
+         'Langan refused to go to college',
+         "Oppenheimer's privileged upbringing gave him the social confidence to navigate institutions and ask for what he needed",
+         'Oppenheimer worked significantly harder',
+       ], correct:2},
+    ]
+  },
+  {
+    num:5, title:'The Three Lessons of Joe Flom', emoji:'⚖️',
+    flavor:'Joe Flom turned rejection into a SUPERPOWER. Take notes.',
+    steps:[
+      {type:'mc',
+       q:"Why did being excluded from elite law firms actually HELP Joe Flom's career in the long run?",
+       opts:[
+         'Smaller firms paid better salaries',
+         'He was forced into litigation work that elite firms considered beneath them — work that later became the most lucrative area of law',
+         'He had access to better legal education outside the big firms',
+         'He relocated to a city with almost no legal competition',
+       ], correct:1},
+      {type:'mc',
+       q:'According to Gladwell, what three qualities make work truly "meaningful"?',
+       opts:[
+         'Fame, wealth, and respect',
+         'Security, routine, and prestige',
+         'Freedom, creativity, and teamwork',
+         'Autonomy, complexity, and a connection between effort and reward',
+       ], correct:3},
+    ]
+  },
+  {
+    num:6, title:'Harlan, Kentucky', emoji:'🏔️',
+    flavor:"Things are getting tense. Much like Harlan itself. Don't. Get. It. Wrong.",
+    steps:[
+      {type:'mc',
+       q:'What is the term Gladwell uses for the aggressive social code inherited by Harlan residents from their Scotch-Irish ancestors?',
+       opts:['Culture of silence','Culture of pride','Culture of revenge','Culture of honor'], correct:3},
+      {type:'mc',
+       q:'Why do "cultures of honor" develop in herding societies rather than farming communities?',
+       opts:[
+         'Herders are naturally more isolated and suspicious of outsiders',
+         'Livestock can be easily stolen, so maintaining a fierce reputation for retaliation is essential to survival',
+         'Farming communities always had stronger legal systems to protect them',
+         'Herders adopted aggressive cultures through constant travel and contact with other groups',
+       ], correct:1},
+    ]
+  },
+  {
+    num:7, title:'The Ethnic Theory of Plane Crashes', emoji:'✈️',
+    flavor:'This chapter literally involves planes falling out of the sky. No pressure.',
+    steps:[
+      {type:'mc',
+       q:'What does the Power Distance Index (PDI) measure?',
+       opts:[
+         'How quickly pilots make life-or-death decisions under stress',
+         'How well a plane performs at different altitudes',
+         'How often pilots break standard procedures',
+         'How much a culture accepts and expects unequal power — like a co-pilot deferring to a captain even when the captain is wrong',
+       ], correct:3},
+      {type:'mc',
+       q:'What is "mitigated speech" in the context of cockpit communication?',
+       opts:[
+         'Speaking too loudly and distracting the pilot',
+         "Using technical jargon the co-pilot doesn't understand",
+         'Softening or hinting at a warning instead of stating it directly and urgently',
+         'Communicating across a language barrier mid-flight',
+       ], correct:2},
+      {type:'mc',
+       q:'How did Korean Air transform its terrible safety record into one of the best in the world?',
+       opts:[
+         'They replaced their entire fleet with newer aircraft',
+         'They hired only foreign pilots with different training',
+         'They reduced the number of international routes',
+         'They retrained pilots to communicate more directly and assertively, overriding their cultural tendency toward deference',
+       ], correct:3},
+      {type:'minigame', game:'cockpit-translator', title:'COCKPIT TRANSLATOR ✈️',
+       instructions:'Rank these co-pilot warnings from MOST MITIGATED (vague and wishy-washy) to MOST DIRECT (urgent and clear). Click a quote to select it, then click the numbered slot where it belongs.'},
+    ]
+  },
+  {
+    num:8, title:'Rice Paddies and Math Tests', emoji:'🌾',
+    flavor:"Final stretch. Your brain is a rice paddy right now — this is where hard work pays off.",
+    steps:[
+      {type:'mc',
+       q:'What farming tradition does Gladwell connect to the strong work ethic and math performance seen in many Asian students?',
+       opts:[
+         'Wheat farming',
+         'Tea farming',
+         'Corn farming',
+         'Rice farming — incredibly labor-intensive, year-round, and detail-obsessed',
+       ], correct:3},
+      {type:'mc',
+       q:'Why do children learning Asian languages often find early math easier?',
+       opts:[
+         'Asian schools use far more repetition and drilling',
+         'Asian parents invest more time in early childhood math education',
+         'Asian number words are shorter and follow a more logical, consistent pattern — making them easier to remember and work with',
+         "It's a genetic cognitive advantage, according to Gladwell",
+       ], correct:2},
+      {type:'mc',
+       q:'On international math tests, students who score higher also tend to do what at a higher rate?',
+       opts:[
+         'Sleep more hours per night',
+         'Come from two-parent households',
+         'Own more books at home',
+         'Completely fill out long background questionnaires — showing their persistence carries over',
+       ], correct:3},
+      {type:'minigame', game:'rice-paddy', title:'BUILD THE RICE PADDY 🌾',
+       instructions:'Put the 6 steps of rice farming in the correct order. Click a step card to select it (it turns orange), then click the numbered slot where it belongs.'},
+      {type:'minigame', game:'memory-match', title:'OUTLIERS MEMORY MATCH 🃏',
+       instructions:'Match each person or group to their key advantage from the book! Click two cards — if they match, they stay green. Find all 6 pairs to continue!'},
+    ]
+  },
+  {
+    num:9, title:"Marita's Bargain", emoji:'📚',
+    flavor:'ONE CHAPTER. BETWEEN YOU. AND FREEDOM. DO. NOT. BLOW. IT. 💥',
+    steps:[
+      {type:'mc',
+       q:'Which school in the South Bronx proved that low-income students could achieve at the highest levels given enough time and structure?',
+       opts:['SUCCESS Academy','Democracy Prep Charter School','Bronx Science High School','KIPP Academy'], correct:3},
+      {type:'mc',
+       q:"What specific problem does KIPP's extended school day and year-round calendar solve?",
+       opts:[
+         'Teacher burnout caused by short summers',
+         'Overcrowded classrooms during the regular school year',
+         'Lack of technology access for low-income students',
+         'The "summer slide" — where poor students lose academic ground over summer while wealthy students maintain or gain it',
+       ], correct:3},
+      {type:'mc',
+       q:"What does Marita's story ultimately prove about the nature of success?",
+       opts:[
+         'Any student can succeed through sheer willpower and individual effort alone',
+         'Intelligence is the single most important factor in academic achievement',
+         'Private schools will always outperform public schools for low-income students',
+         'Individual effort matters — but only when paired with the right opportunity, structure, and environment',
+       ], correct:3},
+      {type:'minigame', game:'maritas-day', title:"MARITA'S DAY 📅",
+       instructions:"See how every hour of Marita's day is used. Click each activity block to add it to her 24-hour schedule and discover her bargain."},
+    ]
+  },
+];
+
+const SEQUENCE = [
+  {type:'intro'},
+  {type:'chapter', idx:0},
+  {type:'chapter', idx:1},
+  {type:'chapter', idx:2},
+  {type:'gate', code:'HAMBURG', num:1, msg:"IMPRESSIVE. You've cracked the first vault. But the next door needs a key only your teacher holds. Ask them. We'll wait. 🎭"},
+  {type:'chapter', idx:3},
+  {type:'chapter', idx:4},
+  {type:'chapter', idx:5},
+  {type:'gate', code:'ROSETO', num:2, msg:"TWO-THIRDS DONE. The vault is shaking. Three chapters stand between you and FREEDOM. Your teacher holds one final secret… 👀"},
+  {type:'chapter', idx:6},
+  {type:'chapter', idx:7},
+  {type:'chapter', idx:8},
+  {type:'escape'},
+];
+
+// ===================== STATE =====================
+
+let state = {
+  screen:'intro', seqIndex:0, stepIndex:0,
+  hearts:4, timerSeconds:0, timerInterval:null,
+  wrongAnswers:0, lostAllHearts:false,
+  answerLocked:false, game:{},
+};
+
+// ===================== UTILITIES =====================
+
+function fmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+
+function startTimer(){
+  if(state.timerInterval) return;
+  state.timerInterval = setInterval(()=>{
+    state.timerSeconds++;
+    const el = document.getElementById('timer-val');
+    if(el) el.textContent = fmt(state.timerSeconds);
+  },1000);
+}
+
+function stopTimer(){ clearInterval(state.timerInterval); state.timerInterval = null; }
+
+function showNotif(msg, type){
+  const old = document.getElementById('notif');
+  if(old) old.remove();
+  const el = document.createElement('div');
+  el.id = 'notif'; el.className = 'notif notif-'+type; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, 2500);
+}
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function getRank(){
+  if(state.lostAllHearts) return {emoji:'💪',title:'THE MATTHEW EFFECT GOT YOU... BUT YOU ESCAPED ANYWAY',desc:"You got knocked all the way back to Chapter 1 — and still made it out. That's an outlier move if we've ever seen one."};
+  const w=state.wrongAnswers;
+  if(w===0) return {emoji:'🏆',title:'TRUE OUTLIER',desc:"Gladwell would write a whole chapter about you. Zero wrong answers. Statistically improbable. Absolutely legendary."};
+  if(w<=2) return {emoji:'⭐',title:'PRACTICALLY AN OUTLIER',desc:"Just a few lucky breaks from greatness. Oppenheimer would be impressed."};
+  if(w<=4) return {emoji:'📚',title:'STILL LOGGING HOURS',desc:"10,000 hours of practice and you'll get there. The Beatles started somewhere too."};
+  return {emoji:'🎸',title:'STILL IN HAMBURG',desc:"Keep playing those 8-hour sets. The breakthrough is coming. Probably."};
+}
+
+// ===================== GAME FLOW =====================
+
+function loseHeart(){
+  if(state.hearts<=0||state.screen==='gameover') return;
+  state.hearts--;
+  state.wrongAnswers++;
+  const panel = document.querySelector('.main-panel');
+  if(panel){ panel.classList.add('shake'); setTimeout(()=>panel.classList.remove('shake'),500); }
+  updateHeartsDisplay();
+  if(state.hearts<=0){
+    state.lostAllHearts=true; stopTimer();
+    setTimeout(()=>{ state.screen='gameover'; render(); },700);
+    return;
+  }
+  showNotif('WRONG! ❤️ '+state.hearts+' heart'+(state.hearts!==1?'s':'')+' left','wrong');
+}
+
+function updateHeartsDisplay(){
+  const el=document.getElementById('hud-hearts');
+  if(el) el.textContent='❤️'.repeat(state.hearts)+'🖤'.repeat(4-state.hearts);
+}
+
+function nextStep(){
+  state.stepIndex++; state.answerLocked=false;
+  const stage=SEQUENCE[state.seqIndex];
+  if(stage.type==='chapter'){
+    const ch=CHAPTERS[stage.idx];
+    if(state.stepIndex>=ch.steps.length){ nextStage(); }
+    else{ render(); }
+  }
+}
+
+function nextStage(){
+  state.seqIndex++; state.stepIndex=0; state.answerLocked=false; state.game={};
+  if(state.seqIndex>=SEQUENCE.length){ state.screen='escape'; stopTimer(); render(); setTimeout(launchConfetti,400); return; }
+  state.screen=SEQUENCE[state.seqIndex].type;
+  render();
+}
+
+function restartGame(){
+  state.hearts=4; state.seqIndex=1; state.stepIndex=0;
+  state.screen='chapter'; state.game={}; state.answerLocked=false;
+  if(!state.timerInterval) startTimer();
+  render();
+}
+
+function launchConfetti(){
+  const colors=['#FFD600','#E63946','#2DC653','#FF6B35','#9B5DE5','#1A2744','#fff'];
+  for(let i=0;i<140;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div'); el.className='confetti-piece';
+      el.style.left=Math.random()*100+'vw';
+      el.style.background=colors[Math.floor(Math.random()*colors.length)];
+      el.style.width=(5+Math.random()*9)+'px'; el.style.height=(5+Math.random()*9)+'px';
+      el.style.borderRadius=Math.random()>.5?'50%':'2px';
+      el.style.animationDuration=(1.8+Math.random()*2.2)+'s';
+      document.body.appendChild(el); setTimeout(()=>el.remove(),4500);
+    },Math.random()*2500);
+  }
+}
+
+// ===================== RENDER =====================
+
+function render(){
+  const app=document.getElementById('app');
+  const stage=SEQUENCE[state.seqIndex]||{};
+  let html='';
+  if(state.screen==='intro')         html=renderIntro();
+  else if(state.screen==='gameover') html=renderGameOver();
+  else if(state.screen==='escape')   html=renderEscape();
+  else if(state.screen==='chapter')  html=renderHUD(stage)+renderChapter(stage);
+  else if(state.screen==='gate')     html=renderHUD(stage)+renderGate(stage);
+  app.innerHTML=html;
+  attachHandlers();
+}
+
+function renderHUD(stage){
+  const isGate=stage.type==='gate';
+  const label=isGate?('🔑 CODE GATE '+stage.num+' OF 2'):('CHAPTER '+(CHAPTERS[stage.idx]?CHAPTERS[stage.idx].num:'?')+' OF 9');
+  const hearts='❤️'.repeat(state.hearts)+'🖤'.repeat(4-state.hearts);
+  return '<div id="hud"><div class="hud-hearts" id="hud-hearts">'+hearts+'</div><div class="hud-center">'+label+'</div><div class="hud-right">⏱️ <span id="timer-val">'+fmt(state.timerSeconds)+'</span></div></div>';
+}
+
+function renderIntro(){
+  return `
+  <div class="panel panel-yellow main-panel" style="text-align:center">
+    <div class="intro-top">
+      <div class="zap">💥 POW! 💥</div>
+      <h1 class="intro-title">BREAK OUT OF ORDINARY</h1>
+      <p class="intro-sub">AN OUTLIERS ESCAPE ROOM</p>
+      <p class="intro-class">9TH GRADE ENGLISH</p>
+    </div>
+    <div class="speech-bubble" style="text-align:left">
+      You've been LOCKED inside the <strong>Vault of Ordinary Thinking</strong>. Nine chapters. Two teacher codes. Puzzles, games, and secrets. Can you break free — or will the vault claim another ordinary mind? 😈
+    </div>
+    <div class="rules-panel">
+      <h3>📋 THE RULES OF ESCAPE</h3>
+      <ul>
+        <li>❤️❤️❤️❤️ &nbsp;You start with <strong>4 hearts</strong></li>
+        <li>💔 &nbsp;Every wrong answer costs you a heart</li>
+        <li>💀 &nbsp;Lose all 4 hearts = you restart from <strong>Chapter 1</strong></li>
+        <li>🔑 &nbsp;Two teacher code gates will block your path — ask your teacher!</li>
+        <li>⏱️ &nbsp;Timer counts up — no limit, but glory awaits the swift</li>
+        <li>🏆 &nbsp;Escape with the fewest wrong answers for the best rank</li>
+      </ul>
+    </div>
+    <button class="btn btn-navy btn-big start-btn" id="start-btn">⚡ BEGIN THE ESCAPE ⚡</button>
+  </div>`;
+}
+
+function renderChapter(stage){
+  const ch=CHAPTERS[stage.idx];
+  const step=ch.steps[state.stepIndex];
+  const total=ch.steps.length;
+  return `
+  <div class="panel main-panel">
+    <div class="chapter-header">
+      <span class="ch-emoji">${ch.emoji}</span>
+      <div><div class="ch-num">CHAPTER ${ch.num} OF 9</div><div class="ch-title">${ch.title}</div></div>
+      <div class="ch-steps">${state.stepIndex+1}/${total}</div>
+    </div>
+    <div class="flavor-text">"${ch.flavor}"</div>
+    ${renderStep(step)}
+  </div>`;
+}
+
+function renderStep(step){
+  if(step.type==='mc')       return renderMC(step);
+  if(step.type==='fillin')   return renderFillin(step);
+  if(step.type==='minigame') return renderMinigame(step);
+  return '';
+}
+
+function renderMC(step){
+  return `<div class="mc-wrap"><p class="question">${step.q}</p><div class="mc-options">`+
+    step.opts.map((o,i)=>`<button class="mc-option" data-idx="${i}"><span class="opt-letter">${String.fromCharCode(65+i)}</span>${o}</button>`).join('')+
+  `</div></div>`;
+}
+
+function renderFillin(step){
+  return `<div class="fillin-wrap"><p class="question">${step.q}</p><div class="fillin-row"><input type="text" id="fillin-input" class="fill-input" placeholder="Type your answer…" autocomplete="off"><button class="btn btn-navy" id="fillin-submit">SUBMIT ⚡</button></div></div>`;
+}
+
+function renderMinigame(step){
+  const g=step.game;
+  if(g==='sort-birthdays')     return renderSortBirthdays(step);
+  if(g==='rice-paddy')         return renderRicePaddy(step);
+  if(g==='memory-match')       return renderMemoryMatch(step);
+  if(g==='cockpit-translator') return renderCockpitTranslator(step);
+  if(g==='maritas-day')        return renderMaritasDay(step);
+  return '';
+}
+
+function renderGate(stage){
+  return `
+  <div class="gate-panel main-panel">
+    <div class="gate-icon">🔑</div>
+    <h2 class="gate-title">TEACHER CODE REQUIRED</h2>
+    <p class="gate-num">CODE GATE ${stage.num} OF 2</p>
+    <p class="gate-msg">${stage.msg}</p>
+    <input type="text" id="gate-input" class="code-input" placeholder="ENTER CODE…" autocomplete="off">
+    <button class="btn" id="gate-submit" style="font-size:1.3rem;padding:14px 32px">🔓 UNLOCK THE VAULT</button>
+    <p class="gate-hint">Ask your teacher for the secret code!</p>
+  </div>`;
+}
+
+function renderGameOver(){
+  return `
+  <div class="gameover-wrap">
+    <div class="gameover-panel main-panel">
+      <div class="go-icon">💀</div>
+      <h2 class="go-title">OUT OF HEARTS!</h2>
+      <p class="go-sub">The vault has reclaimed you.</p>
+      <div class="go-quote">"No one who can rise before dawn 360 days a year fails to make his family rich." — Chinese Proverb (and also, try harder)</div>
+      <p class="go-restart-msg">You're being sent back to Chapter 1...<br>
+      <small>Your timer keeps running. Your wrong answers are remembered. But every outlier has a setback story — this is yours.</small></p>
+      <button class="btn btn-red btn-big" id="restart-btn">💪 BACK TO CHAPTER 1</button>
+    </div>
+  </div>`;
+}
+
+function renderEscape(){
+  const rank=getRank();
+  return `
+  <div class="escape-wrap">
+    <div class="panel panel-yellow main-panel">
+      <h1 class="escape-title">🎉 YOU ESCAPED! 🎉</h1>
+      <p class="escape-sub">BREAK OUT OF ORDINARY — COMPLETE</p>
+      <div class="escape-stats">
+        <div class="stat-box"><div class="stat-label">FINAL TIME</div><div class="stat-val">${fmt(state.timerSeconds)}</div></div>
+        <div class="stat-box"><div class="stat-label">WRONG ANSWERS</div><div class="stat-val">${state.wrongAnswers}</div></div>
+      </div>
+      <div class="rank-badge">
+        <div class="rank-emoji">${rank.emoji}</div>
+        <div class="rank-title">${rank.title}</div>
+        <div class="rank-desc">${rank.desc}</div>
+      </div>
+      <div class="escape-footer">
+        <p>🏆 9th Grade English — Outliers Escape Room</p>
+        <p style="margin-top:8px">"No one rises before dawn 360 days a year and fails to make their family rich." — Chinese Proverb</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ===================== MINI-GAME RENDERERS =====================
+
+function renderSortBirthdays(step){
+  if(!state.game.sb) state.game.sb={selected:null,drafted:[],passed:[]};
+  const sb=state.game.sb;
+  const placed=[...sb.drafted,...sb.passed];
+  const unplaced=PLAYERS.filter(p=>!placed.includes(p.id));
+  const allPlaced=placed.length===6;
+  return `
+  <div class="minigame-header"><h3>${step.title}</h3><p class="mg-instructions">${step.instructions}</p></div>
+  <div class="sb-layout">
+    <div class="sb-players">
+      <h4>🏒 PLAYER POOL</h4>
+      ${unplaced.map(p=>`<div class="drag-card${sb.selected===p.id?' selected':''}" data-sb-player="${p.id}"><strong>${p.name}</strong><br><small>🎂 ${p.bday}</small></div>`).join('')}
+      ${unplaced.length===0?'<p class="all-placed">All sorted! ✅ Hit check below!</p>':''}
+    </div>
+    <div class="sb-zones">
+      <div class="sb-zone zone-drafted" data-sb-zone="drafted">
+        <h4>✅ DRAFTED</h4><p class="zone-hint">Born January – March</p>
+        ${sb.drafted.map(id=>{const p=PLAYERS.find(x=>x.id===id);return `<div class="drag-card placed">${p.name}<br><small>${p.bday}</small></div>`;}).join('')}
+        ${sb.drafted.length===0?'<span class="slot-empty">Click here to place</span>':''}
+      </div>
+      <div class="sb-zone zone-passed" data-sb-zone="passed">
+        <h4>❌ PASSED OVER</h4><p class="zone-hint">Born April – December</p>
+        ${sb.passed.map(id=>{const p=PLAYERS.find(x=>x.id===id);return `<div class="drag-card placed" style="background:var(--r);color:white">${p.name}<br><small>${p.bday}</small></div>`;}).join('')}
+        ${sb.passed.length===0?'<span class="slot-empty">Click here to place</span>':''}
+      </div>
+    </div>
+  </div>
+  ${allPlaced?'<div class="mg-check-row"><button class="btn btn-green" id="sb-check">CHECK MY DRAFT 🏒</button></div>':''}`;
+}
+
+function renderRicePaddy(step){
+  if(!state.game.rp) state.game.rp={selected:null, slots:Array(6).fill(null), order:shuffle([0,1,2,3,4,5])};
+  const rp=state.game.rp;
+  const allPlaced=rp.slots.every(s=>s!==null);
+  return `
+  <div class="minigame-header"><h3>${step.title}</h3><p class="mg-instructions">${step.instructions}</p></div>
+  <div class="rp-layout">
+    <div class="rp-cards">
+      <h4>📋 STEPS (click to select)</h4>
+      ${rp.order.map(origIdx=>{
+        const placed=rp.slots.includes(origIdx);
+        return `<div class="drag-card${placed?' placed':''} ${!placed&&rp.selected===origIdx?' selected':''}" ${!placed?'data-rp-card="'+origIdx+'"':''} style="${placed?'opacity:0.45;cursor:default':''}">${RICE_STEPS[origIdx]}</div>`;
+      }).join('')}
+    </div>
+    <div class="rp-slots">
+      <h4>🔢 CORRECT ORDER (click slot to place)</h4>
+      ${rp.slots.map((v,i)=>`
+        <div class="rp-slot${v!==null?' filled':''}" data-rp-slot="${i}">
+          <span class="slot-num">${i+1}</span>
+          ${v!==null?`<span>${RICE_STEPS[v]}</span>`:'<span class="slot-empty">Click to place selected step</span>'}
+        </div>`).join('')}
+    </div>
+  </div>
+  ${allPlaced?'<div class="mg-check-row"><button class="btn btn-green" id="rp-check">CHECK MY ORDER 🌾</button></div>':''}`;
+}
+
+function renderMemoryMatch(step){
+  if(!state.game.mm){
+    state.game.mm={cards:shuffle(MEMORY_CARDS_BASE.map((c,i)=>({...c,cardIdx:i}))),flipped:[],matched:[],locked:false};
+  }
+  const mm=state.game.mm;
+  if(mm.matched.length===6){
+    return `<div class="minigame-header"><h3>${step.title}</h3></div>
+    <div class="mm-success"><div class="mm-success-icon">🎉</div><h3>ALL PAIRS MATCHED!</h3>
+    <p>Impressive memory! You clearly paid attention — or got really lucky. Either way, we respect it.</p>
+    <button class="btn btn-green" id="mm-continue">CONTINUE →</button></div>`;
+  }
+  return `
+  <div class="minigame-header"><h3>${step.title}</h3><p class="mg-instructions">${step.instructions}</p>
+  <p class="mm-progress">Pairs found: ${mm.matched.length} / 6</p></div>
+  <div class="card-grid">
+    ${mm.cards.map((card,i)=>{
+      const isFlipped=mm.flipped.includes(i);
+      const isMatched=mm.matched.includes(card.pair);
+      return `<div class="memory-card${(isFlipped||isMatched)?' flipped':''}${isMatched?' matched':''}" data-mm-card="${i}">${isFlipped||isMatched?card.label:'?'}</div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderCockpitTranslator(step){
+  if(!state.game.ct) state.game.ct={selected:null,slots:[null,null,null]};
+  const ct=state.game.ct;
+  const allPlaced=ct.slots.every(s=>s!==null);
+  return `
+  <div class="minigame-header"><h3>${step.title}</h3><p class="mg-instructions">${step.instructions}</p></div>
+  <div class="ct-layout">
+    <div class="ct-quotes">
+      <h4>💬 QUOTES (click to select)</h4>
+      ${COCKPIT_QUOTES.map((q,i)=>{
+        const isPlaced=ct.slots.includes(i);
+        return `<div class="ct-quote${isPlaced?' placed':ct.selected===i?' selected':''}" ${!isPlaced?'data-ct-quote="'+i+'"':''}>${q.text}</div>`;
+      }).join('')}
+    </div>
+    <div class="ct-slots">
+      <h4>📊 RANK (1 = Most Vague → 3 = Most Urgent)</h4>
+      ${ct.slots.map((v,i)=>`
+        <div class="ct-slot${v!==null?' filled':''}" data-ct-slot="${i}">
+          <span class="slot-num">${i+1}</span>
+          <span class="ct-slot-label">${i===0?'😬 Most Mitigated (vague)':i===2?'🚨 Most Direct (urgent)':'😐 In the Middle'}</span>
+          ${v!==null?`<div class="ct-placed-quote">${COCKPIT_QUOTES[v].text}</div>`:'<div class="slot-empty">Click to place</div>'}
+        </div>`).join('')}
+    </div>
+  </div>
+  ${allPlaced?'<div class="mg-check-row"><button class="btn btn-green" id="ct-check">CHECK RANKING ✈️</button></div>':''}`;
+}
+
+function renderMaritasDay(step){
+  if(!state.game.md) state.game.md={placed:[]};
+  const md=state.game.md;
+  const allPlaced=md.placed.length===MARITA_BLOCKS.length;
+  let filledSlots=[];
+  md.placed.forEach(id=>{
+    const b=MARITA_BLOCKS.find(x=>x.id===id);
+    for(let i=0;i<b.slots;i++) filledSlots.push(b);
+  });
+  const emptySlots=24-filledSlots.length;
+  return `
+  <div class="minigame-header"><h3>${step.title}</h3><p class="mg-instructions">${step.instructions}</p></div>
+  <div class="md-layout">
+    <div class="md-blocks">
+      <h4>📋 ACTIVITIES (click each)</h4>
+      ${MARITA_BLOCKS.map(b=>{
+        const done=md.placed.includes(b.id);
+        return `<div class="md-block${done?' placed':''}" style="background:${done?'#ccc':b.color};color:${done?'#999':b.textColor};border-color:${done?'#bbb':'var(--k)'}" ${!done?'data-md-block="'+b.id+'"':''}><strong>${b.label}</strong><br><small>${b.hours}</small>${done?' ✓':''}</div>`;
+      }).join('')}
+    </div>
+    <div class="md-timeline">
+      <h4>🕐 MARITA'S 24-HOUR DAY</h4>
+      <div class="md-bar">
+        ${filledSlots.map((b,i)=>{
+          const showLabel=i===0||filledSlots[i-1]?.id!==b.id;
+          return `<div class="md-slot" style="background:${b.color};color:${b.textColor}" title="${b.label}">${showLabel?b.label.split(' ')[0]:''}</div>`;
+        }).join('')}
+        ${Array(emptySlots).fill(0).map(()=>'<div class="md-slot empty">—</div>').join('')}
+      </div>
+      <div class="md-bar-labels"><span>12am</span><span>6am</span><span>Noon</span><span>6pm</span><span>Midnight</span></div>
+    </div>
+  </div>
+  ${allPlaced?`
+  <div class="md-gutpunch">
+    <h3>💔 That's Marita's Bargain.</h3>
+    <p>Two hours. Every day. That's all the free time Marita has after KIPP, homework, sleep, and meals. She gave up her old friends, her old school, her old life — in exchange for a shot at opportunity that wealthier kids get by birthright. While others play and hang out, Marita studies. <strong>That's what it takes when the system doesn't give you a head start.</strong></p>
+    <button class="btn" style="background:var(--y)" id="md-continue">I UNDERSTAND. FINAL CHAPTER COMPLETE →</button>
+  </div>`:''} `;
+}
+
+// ===================== EVENT HANDLERS =====================
+
+function attachHandlers(){
+  // Intro start
+  const startBtn=document.getElementById('start-btn');
+  if(startBtn) startBtn.addEventListener('click',()=>{
+    state.seqIndex=1; state.screen='chapter'; startTimer(); render();
+  });
+
+  // Game over restart
+  const restartBtn=document.getElementById('restart-btn');
+  if(restartBtn) restartBtn.addEventListener('click',restartGame);
+
+  // MC options
+  document.querySelectorAll('.mc-option').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(state.answerLocked) return;
+      const idx=parseInt(btn.dataset.idx);
+      const ch=CHAPTERS[SEQUENCE[state.seqIndex].idx];
+      const step=ch.steps[state.stepIndex];
+      if(idx===step.correct){
+        state.answerLocked=true;
+        btn.classList.add('correct');
+        showNotif('CORRECT! 🎉','correct');
+        setTimeout(()=>{ state.answerLocked=false; nextStep(); },800);
+      } else {
+        btn.classList.add('wrong');
+        loseHeart();
+        setTimeout(()=>btn.classList.remove('wrong'),500);
+      }
+    });
+  });
+
+  // Fill-in submit
+  const fsub=document.getElementById('fillin-submit');
+  if(fsub) fsub.addEventListener('click',()=>{
+    if(state.answerLocked) return;
+    const inp=document.getElementById('fillin-input');
+    const val=inp.value.trim().toLowerCase().replace(/,/g,'').replace(/\s/g,'');
+    const ch=CHAPTERS[SEQUENCE[state.seqIndex].idx];
+    const step=ch.steps[state.stepIndex];
+    if(step.correct.includes(val)){
+      state.answerLocked=true;
+      inp.style.borderColor='var(--g)'; inp.style.background='#d4f7dd';
+      showNotif('CORRECT! 🎉','correct');
+      setTimeout(()=>{ state.answerLocked=false; nextStep(); },800);
+    } else {
+      inp.style.borderColor='var(--r)'; inp.style.background='#fde8ea';
+      loseHeart();
+      setTimeout(()=>{ inp.style.borderColor=''; inp.style.background=''; inp.value=''; },700);
+    }
+  });
+  const finp=document.getElementById('fillin-input');
+  if(finp) finp.addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('fillin-submit')?.click(); });
+
+  // Gate submit
+  const gsub=document.getElementById('gate-submit');
+  if(gsub) gsub.addEventListener('click',()=>{
+    const inp=document.getElementById('gate-input');
+    const val=inp.value.trim().toUpperCase();
+    const stage=SEQUENCE[state.seqIndex];
+    if(val===stage.code){ showNotif('🔓 ACCESS GRANTED!','correct'); setTimeout(nextStage,600); }
+    else { inp.style.borderColor='var(--r)'; showNotif('❌ WRONG CODE — try again!','wrong'); setTimeout(()=>{ inp.style.borderColor=''; inp.value=''; },900); }
+  });
+  const ginp=document.getElementById('gate-input');
+  if(ginp) ginp.addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('gate-submit')?.click(); });
+
+  // ---- SORT BIRTHDAYS ----
+  document.querySelectorAll('[data-sb-player]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const id=parseInt(el.dataset.sbPlayer);
+      state.game.sb.selected=state.game.sb.selected===id?null:id;
+      render();
+    });
+  });
+  document.querySelectorAll('[data-sb-zone]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      if(state.game.sb.selected===null) return;
+      const zone=el.dataset.sbZone; const id=state.game.sb.selected;
+      if(zone==='drafted'){
+        if(!state.game.sb.drafted.includes(id)) state.game.sb.drafted.push(id);
+        state.game.sb.passed=state.game.sb.passed.filter(x=>x!==id);
+      } else {
+        if(!state.game.sb.passed.includes(id)) state.game.sb.passed.push(id);
+        state.game.sb.drafted=state.game.sb.drafted.filter(x=>x!==id);
+      }
+      state.game.sb.selected=null; render();
+    });
+  });
+  const sbCheck=document.getElementById('sb-check');
+  if(sbCheck) sbCheck.addEventListener('click',()=>{
+    const sb=state.game.sb;
+    const correctD=PLAYERS.filter(p=>p.month<=3).map(p=>p.id).sort().join(',');
+    const correctP=PLAYERS.filter(p=>p.month>3).map(p=>p.id).sort().join(',');
+    const actualD=[...sb.drafted].sort().join(',');
+    const actualP=[...sb.passed].sort().join(',');
+    if(actualD===correctD&&actualP===correctP){ showNotif('PERFECT DRAFT! 🏒','correct'); setTimeout(nextStep,800); }
+    else {
+      loseHeart();
+      if(state.hearts>0){ setTimeout(()=>{ state.game.sb={selected:null,drafted:[],passed:[]}; render(); },800); }
+    }
+  });
+
+  // ---- RICE PADDY ----
+  document.querySelectorAll('[data-rp-card]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const idx=parseInt(el.dataset.rpCard);
+      state.game.rp.selected=state.game.rp.selected===idx?null:idx; render();
+    });
+  });
+  document.querySelectorAll('[data-rp-slot]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const si=parseInt(el.dataset.rpSlot); const rp=state.game.rp;
+      if(rp.selected===null){
+        if(rp.slots[si]!==null){ rp.slots[si]=null; render(); }
+        return;
+      }
+      rp.slots[si]=rp.selected; rp.selected=null; render();
+    });
+  });
+  const rpCheck=document.getElementById('rp-check');
+  if(rpCheck) rpCheck.addEventListener('click',()=>{
+    const ok=state.game.rp.slots.every((v,i)=>v===i);
+    if(ok){ showNotif('PERFECT ORDER! 🌾','correct'); setTimeout(nextStep,800); }
+    else {
+      loseHeart();
+      if(state.hearts>0){ setTimeout(()=>{ state.game.rp.slots=Array(6).fill(null); state.game.rp.selected=null; render(); },800); }
+    }
+  });
+
+  // ---- MEMORY MATCH ----
+  document.querySelectorAll('[data-mm-card]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const mm=state.game.mm; if(mm.locked) return;
+      const i=parseInt(el.dataset.mmCard); const card=mm.cards[i];
+      if(mm.flipped.includes(i)||mm.matched.includes(card.pair)) return;
+      mm.flipped.push(i); render();
+      if(mm.flipped.length===2){
+        mm.locked=true;
+        const [a,b]=mm.flipped;
+        if(mm.cards[a].pair===mm.cards[b].pair){
+          setTimeout(()=>{ mm.matched.push(mm.cards[a].pair); mm.flipped=[]; mm.locked=false; render(); },600);
+        } else {
+          setTimeout(()=>{ mm.flipped=[]; mm.locked=false; render(); },1000);
+        }
+      }
+    });
+  });
+  const mmCont=document.getElementById('mm-continue');
+  if(mmCont) mmCont.addEventListener('click',nextStep);
+
+  // ---- COCKPIT TRANSLATOR ----
+  document.querySelectorAll('[data-ct-quote]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const i=parseInt(el.dataset.ctQuote);
+      state.game.ct.selected=state.game.ct.selected===i?null:i; render();
+    });
+  });
+  document.querySelectorAll('[data-ct-slot]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const si=parseInt(el.dataset.ctSlot); const ct=state.game.ct;
+      if(ct.selected===null){
+        if(ct.slots[si]!==null){ ct.slots[si]=null; render(); }
+        return;
+      }
+      ct.slots[si]=ct.selected; ct.selected=null; render();
+    });
+  });
+  const ctCheck=document.getElementById('ct-check');
+  if(ctCheck) ctCheck.addEventListener('click',()=>{
+    const ok=state.game.ct.slots.every((v,i)=>v!==null&&COCKPIT_QUOTES[v].correctSlot===i);
+    if(ok){ showNotif('CORRECT RANKING! ✈️','correct'); setTimeout(nextStep,800); }
+    else {
+      loseHeart();
+      if(state.hearts>0){ setTimeout(()=>{ state.game.ct.slots=[null,null,null]; state.game.ct.selected=null; render(); },800); }
+    }
+  });
+
+  // ---- MARITA'S DAY ----
+  document.querySelectorAll('[data-md-block]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const id=el.dataset.mdBlock;
+      if(!state.game.md.placed.includes(id)){ state.game.md.placed.push(id); render(); }
+    });
+  });
+  const mdCont=document.getElementById('md-continue');
+  if(mdCont) mdCont.addEventListener('click',nextStep);
+}
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>
